@@ -15,13 +15,8 @@ function! s:RelativeIndent()
     let l:cursor_at_blank_line = empty(matchstr(l:curr_line_contents, '[^\s]'))
     let l:moved_from_blank_line = !l:cursor_at_blank_line && exists('w:relative_indent_last_virtualedit')
     if l:cursor_at_blank_line
-      if exists('w:relative_indent_last_cursor')
-        let l:minindent = w:relative_indent_last_cursor[2] - 1
-      else
-        let l:minindent = 2147483647
-      endif
-    elseif l:moved_from_blank_line && exists('w:relative_indent_last_cursor')
-      let l:minindent = w:relative_indent_last_cursor[2] - 1
+      let l:minindent = exists('w:relative_indent_last_cursor') ?
+        \  w:relative_indent_last_cursor[2] - 1 : 2147483647
     endif
   else
     let l:cursor_at_blank_line = 0
@@ -74,6 +69,8 @@ function! s:RelativeIndent()
     unlet w:relative_indent_last_virtualedit
     if exists('w:relative_indent_last_cursor')
       let w:relative_indent_last_cursor[1] = l:cursor[1]
+      let w:relative_indent_last_cursor[2] = max([w:relative_indent_last_cursor[2], l:cursor[2]])
+      let w:relative_indent_last_cursor[4] = max([w:relative_indent_last_cursor[4], l:cursor[4]])
       let l:cursor = w:relative_indent_last_cursor
     endif
   elseif !l:cursor_at_blank_line || !exists('w:relative_indent_last_cursor')
@@ -82,7 +79,9 @@ function! s:RelativeIndent()
 
   let l:precedes_shown = l:minindent > 0 && &l:list && !empty(matchstr(&l:listchars, 'precedes:\S'))
   if l:precedes_shown
-      let l:minindent -= 1
+    " Move the window one unit left if precedes is shown
+    " so that the precedes char doesn't block text
+    let l:minindent -= 1
   endif
 
   " Reset horizontal scroll
@@ -93,10 +92,12 @@ function! s:RelativeIndent()
   endif
 
   if l:cursor_at_blank_line
+    " Place cursor one unit to the right of the precedes column
+    let l:cursor[3] = l:precedes_shown ? 1 : 0
     " Emulate how vim would place the cursor at a blank line
     " by placing it at the left of the window
-    let l:cursor[2] = l:minindent + (l:precedes_shown ? 1 : 0)
-    let l:cursor[3] = l:precedes_shown ? 1 : 0
+    let l:cursor[2] = l:minindent + l:cursor[3]
+    let l:cursor[4] = l:cursor[2] + 1
   elseif l:moved_from_blank_line
     " Vim won't set curswant with `setpos()`,
     " it only does so when moving the cursor vertically,
