@@ -12,8 +12,12 @@ function! s:RelativeIndent()
   " Don't hide indent past the cursor
   if &l:virtualedit !=# 'all' || exists('w:relative_indent_last_virtualedit')
     let l:curr_line_contents = getline(l:cursor[1])
-    let l:cursor_at_blank_line = empty(matchstr(l:curr_line_contents, '[^\s]'))
-    let l:moved_from_blank_line = !l:cursor_at_blank_line && exists('w:relative_indent_last_virtualedit')
+    let l:cursor_at_blank_line =
+      \ strlen(l:curr_line_contents) == 0 ||
+      \ empty(matchstr(l:curr_line_contents, '[^\s]'))
+    let l:moved_from_blank_line =
+      \ !l:cursor_at_blank_line &&
+      \ exists('w:relative_indent_last_virtualedit')
     if l:cursor_at_blank_line
       let l:minindent = exists('w:relative_indent_last_cursor') ?
         \  w:relative_indent_last_cursor[2] - 1 : 2147483647
@@ -77,7 +81,10 @@ function! s:RelativeIndent()
     let w:relative_indent_last_cursor = l:cursor
   endif
 
-  let l:precedes_shown = l:minindent > 0 && &l:list && !empty(matchstr(&l:listchars, 'precedes:\S'))
+  let l:precedes_shown =
+    \ l:minindent > 0 &&
+    \ &l:list &&
+    \ !empty(matchstr(&l:listchars, 'precedes:\S'))
   if l:precedes_shown
     " Move the window one unit left if precedes is shown
     " so that the precedes char doesn't block text
