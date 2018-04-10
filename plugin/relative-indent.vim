@@ -13,18 +13,23 @@ function! s:RelativeIndent()
   if &l:virtualedit != 'all' || exists('w:relative_indent_last_virtualedit')
     let curr_line_contents = getline(cursor[1])
     let cursor_at_blank_line = empty(matchstr(curr_line_contents, '[^\s]'))
+    let moved_from_blank_line = !cursor_at_blank_line && exists('w:relative_indent_last_virtualedit')
     if cursor_at_blank_line
-      let minindent = exists('w:relative_indent_last_cursor') ?
-        \ w:relative_indent_last_cursor[2] :
-        \ 2147483647
+      if exists('w:relative_indent_last_cursor')
+        let minindent = w:relative_indent_last_cursor[2] - 1
+      else
+        let minindent = 2147483647
+      endif
+    elseif moved_from_blank_line && exists('w:relative_indent_last_cursor')
+      let minindent = w:relative_indent_last_cursor[2] - 1
     endif
   else
     let cursor_at_blank_line = 0
+    let moved_from_blank_line = 0
   endif
-  let minindent = get(l:, 'minindent', cursor[2])
+  let minindent = get(l:, 'minindent', cursor[2] - 1)
   let topline = line('w0')
   let botline = line('w$')
-  let virtualedit_set = 0
 
   " Find the line with the least indent
   if minindent > 0
@@ -59,13 +64,11 @@ function! s:RelativeIndent()
   if cursor_at_blank_line && &l:virtualedit != 'all'
     let w:relative_indent_last_virtualedit = &l:virtualedit
     let &l:virtualedit = 'all'
-    let virtualedit_set = 1
   endif
 
   " When moving from a blank line to a non blank line,
   " restore the cursor column to the last column it was at
   " on a non blank line
-  let moved_from_blank_line = !cursor_at_blank_line && !virtualedit_set && exists('w:relative_indent_last_virtualedit')
   if moved_from_blank_line
     let &l:virtualedit = w:relative_indent_last_virtualedit
     unlet w:relative_indent_last_virtualedit
@@ -73,12 +76,12 @@ function! s:RelativeIndent()
       let w:relative_indent_last_cursor[1] = cursor[1]
       let cursor = w:relative_indent_last_cursor
     endif
-  elseif !cursor_at_blank_line
+  elseif !cursor_at_blank_line || !exists('w:relative_indent_last_cursor')
     let w:relative_indent_last_cursor = cursor
   endif
 
-  let precedes_shown = &l:list && !empty(matchstr(&l:listchars, 'precedes:\S'))
-  if minindent > 0 && precedes_shown
+  let precedes_shown = minindent > 0 && &l:list && !empty(matchstr(&l:listchars, 'precedes:\S'))
+  if precedes_shown
       let minindent -= 1
   endif
 
@@ -93,7 +96,7 @@ function! s:RelativeIndent()
     " Emulate how vim would place the cursor at a blank line
     " by placing it at the left of the window
     let cursor[2] = minindent + (precedes_shown ? 1 : 0)
-    let cursor[3] = 1
+    let cursor[3] = precedes_shown ? 1 : 0
   elseif moved_from_blank_line
     " Vim won't set curswant with `setpos()`,
     " it only does so when moving the cursor vertically,
@@ -108,9 +111,27 @@ function! s:RelativeIndent()
   let w:relative_indent_last_indent = minindent
 endfunction
 
-command! RelativeIndent call <SID>RelativeIndent()
+function! s:RelativeIndentEnable()
+  augroup relative_indent_enabling_group
+    autocmd!
+    autocmd WinEnter,WinLeave,CursorMoved,VimResized,TextChanged * :RelativeIndent
+  augroup END
+  nnoremap <c-e> <buffer> <c-e>:calls<SID>RelativeIndent()<cr>
+  nnoremap <c-y> <buffer> <c-y>:calls<SID>RelativeIndent()<cr>
+  inoremap <c-x><c-e> <buffer> <c-x><c-e>:calls<SID>RelativeIndent()<cr>
+  inoremap <c-x><c-y> <buffer> <c-x><c-y>:calls<SID>RelativeIndent()<cr>
+endfunction
 
-" augroup relative_indent
-"   autocmd!
-"   autocmd WinEnter,CursorMoved,VimResized * :RelativeIndent
-" augroup END
+function! s:RelativeIndentDisable()
+  augroup relative_indent_enabling_group
+    autocmd!
+  augroup END
+  nunmap <c-e> <buffer>
+  nunmap <e-y> <buffer>
+  iunmap <c-x><c-e> <buffer>
+  iunmap <c-x><c-y> <buffer>
+endfunction
+
+command! RelativeIndent call <SID>RelativeIndent()
+command! RelativeIndentEnable call <SID>RelativeIndentEnable()
+command! RelativeIndentDisable call <SID>RelativeIndentDisable()
