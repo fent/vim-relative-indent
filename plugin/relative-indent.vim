@@ -8,60 +8,60 @@ endif
 let g:loaded_relative_indent = 1
 
 function! s:RelativeIndent()
-  let cursor = getcurpos()
+  let l:cursor = getcurpos()
   " Don't hide indent past the cursor
-  if &l:virtualedit != 'all' || exists('w:relative_indent_last_virtualedit')
-    let curr_line_contents = getline(cursor[1])
-    let cursor_at_blank_line = empty(matchstr(curr_line_contents, '[^\s]'))
-    let moved_from_blank_line = !cursor_at_blank_line && exists('w:relative_indent_last_virtualedit')
-    if cursor_at_blank_line
+  if &l:virtualedit !=# 'all' || exists('w:relative_indent_last_virtualedit')
+    let l:curr_line_contents = getline(l:cursor[1])
+    let l:cursor_at_blank_line = empty(matchstr(l:curr_line_contents, '[^\s]'))
+    let l:moved_from_blank_line = !l:cursor_at_blank_line && exists('w:relative_indent_last_virtualedit')
+    if l:cursor_at_blank_line
       if exists('w:relative_indent_last_cursor')
-        let minindent = w:relative_indent_last_cursor[2] - 1
+        let l:minindent = w:relative_indent_last_cursor[2] - 1
       else
-        let minindent = 2147483647
+        let l:minindent = 2147483647
       endif
-    elseif moved_from_blank_line && exists('w:relative_indent_last_cursor')
-      let minindent = w:relative_indent_last_cursor[2] - 1
+    elseif l:moved_from_blank_line && exists('w:relative_indent_last_cursor')
+      let l:minindent = w:relative_indent_last_cursor[2] - 1
     endif
   else
-    let cursor_at_blank_line = 0
-    let moved_from_blank_line = 0
+    let l:cursor_at_blank_line = 0
+    let l:moved_from_blank_line = 0
   endif
-  let minindent = get(l:, 'minindent', cursor[2] - 1)
-  let topline = line('w0')
-  let botline = line('w$')
+  let l:minindent = get(l:, 'minindent', l:cursor[2] - 1)
+  let l:topline = line('w0')
+  let l:botline = line('w$')
 
   " Find the line with the least indent
-  if minindent > 0
-    for i in range(topline, botline)
+  if l:minindent > 0
+    for l:i in range(l:topline, l:botline)
       " An indent of 0 is already the minimum
-      let line_indent = indent(i)
-      if line_indent == 0
-        let line_contents = getline(i)
+      let l:line_indent = indent(l:i)
+      if l:line_indent == 0
+        let l:line_contents = getline(l:i)
         " Ignore blank lines with zero length
-        if strlen(line_contents) == 0
+        if strlen(l:line_contents) == 0
           continue
         else
-          let minindent = 0
+          let l:minindent = 0
           break
         endif
       endif
 
       " Ignore blank lines of whitespace
-      let line_contents = getline(i)
-      if empty(matchstr(line_contents, '[^\s]'))
+      let l:line_contents = getline(l:i)
+      if empty(matchstr(l:line_contents, '[^\s]'))
         continue
       endif
 
-      if minindent > line_indent
-        let minindent = line_indent
+      if l:minindent > l:line_indent
+        let l:minindent = l:line_indent
       endif
     endfor
   endif
 
   " If this line is where the cursor is, enable virtualedit mode
   " so that the cursor doesn't jump to column 0
-  if cursor_at_blank_line && &l:virtualedit != 'all'
+  if l:cursor_at_blank_line && &l:virtualedit !=# 'all'
     let w:relative_indent_last_virtualedit = &l:virtualedit
     let &l:virtualedit = 'all'
   endif
@@ -69,46 +69,44 @@ function! s:RelativeIndent()
   " When moving from a blank line to a non blank line,
   " restore the cursor column to the last column it was at
   " on a non blank line
-  if moved_from_blank_line
+  if l:moved_from_blank_line
     let &l:virtualedit = w:relative_indent_last_virtualedit
     unlet w:relative_indent_last_virtualedit
     if exists('w:relative_indent_last_cursor')
-      let w:relative_indent_last_cursor[1] = cursor[1]
-      let cursor = w:relative_indent_last_cursor
+      let w:relative_indent_last_cursor[1] = l:cursor[1]
+      let l:cursor = w:relative_indent_last_cursor
     endif
-  elseif !cursor_at_blank_line || !exists('w:relative_indent_last_cursor')
-    let w:relative_indent_last_cursor = cursor
+  elseif !l:cursor_at_blank_line || !exists('w:relative_indent_last_cursor')
+    let w:relative_indent_last_cursor = l:cursor
   endif
 
-  let precedes_shown = minindent > 0 && &l:list && !empty(matchstr(&l:listchars, 'precedes:\S'))
-  if precedes_shown
-      let minindent -= 1
+  let l:precedes_shown = l:minindent > 0 && &l:list && !empty(matchstr(&l:listchars, 'precedes:\S'))
+  if l:precedes_shown
+      let l:minindent -= 1
   endif
 
   " Reset horizontal scroll
   execute 'normal 999zh'
-  if minindent > 0
-    " Hide indent by scrolling the window to the RIGHT
-    execute 'normal '.minindent.'zl'
+  if l:minindent > 0
+    " Hide indent by scrolling the window to the right
+    execute 'normal '.l:minindent.'zl'
   endif
 
-  if cursor_at_blank_line
+  if l:cursor_at_blank_line
     " Emulate how vim would place the cursor at a blank line
     " by placing it at the left of the window
-    let cursor[2] = minindent + (precedes_shown ? 1 : 0)
-    let cursor[3] = precedes_shown ? 1 : 0
-  elseif moved_from_blank_line
+    let l:cursor[2] = l:minindent + (l:precedes_shown ? 1 : 0)
+    let l:cursor[3] = l:precedes_shown ? 1 : 0
+  elseif l:moved_from_blank_line
     " Vim won't set curswant with `setpos()`,
     " it only does so when moving the cursor vertically,
     " so set it manually
-    if cursor[4] > cursor[2]
-      let curr_line_contents = get(l:, 'curr_line_contents', getline(cursor[1]))
-      let cursor[2] = min([strlen(curr_line_contents), cursor[4]])
+    if l:cursor[4] > l:cursor[2]
+      let l:curr_line_contents = get(l:, 'curr_line_contents', getline(l:cursor[1]))
+      let l:cursor[2] = min([strlen(l:curr_line_contents), l:cursor[4]])
     endif
   endif
-  call setpos('.', cursor)
-
-  let w:relative_indent_last_indent = minindent
+  call setpos('.', l:cursor)
 endfunction
 
 function! s:RelativeIndentEnable()
