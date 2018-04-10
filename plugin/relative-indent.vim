@@ -122,20 +122,21 @@ function! s:RelativeIndentEnable()
     autocmd!
     autocmd WinEnter,WinLeave,CursorMoved,VimResized,TextChanged * :RelativeIndent
   augroup END
-  nnoremap <c-e> <buffer> <c-e>:calls<SID>RelativeIndent()<cr>
-  nnoremap <c-y> <buffer> <c-y>:calls<SID>RelativeIndent()<cr>
-  inoremap <c-x><c-e> <buffer> <c-x><c-e>:calls<SID>RelativeIndent()<cr>
-  inoremap <c-x><c-y> <buffer> <c-x><c-y>:calls<SID>RelativeIndent()<cr>
+  nnoremap <buffer><silent> <c-e> <c-e>:call <SID>RelativeIndent()<cr>
+  nnoremap <buffer><silent> <c-y> <c-y>:call <SID>RelativeIndent()<cr>
+  inoremap <buffer><silent> <c-x><c-e> <c-x><c-e><esc>:call <SID>RelativeIndent()<cr>a
+  inoremap <buffer><silent> <c-x><c-y> <c-x><c-y><esc>:call <SID>RelativeIndent()<cr>a
 endfunction
 
 function! s:RelativeIndentDisable()
   augroup relative_indent_enabling_group
     autocmd!
   augroup END
-  nunmap <c-e> <buffer>
-  nunmap <e-y> <buffer>
-  iunmap <c-x><c-e> <buffer>
-  iunmap <c-x><c-y> <buffer>
+  nunmap <buffer> <c-e>
+  nunmap <buffer> <c-y>
+  iunmap <buffer> <c-x><c-e>
+  iunmap <buffer> <c-x><c-y>
+  execute 'normal 999zh'
 endfunction
 
 command! RelativeIndent call <SID>RelativeIndent()
