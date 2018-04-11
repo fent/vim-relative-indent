@@ -8,7 +8,7 @@ endif
 let g:loaded_relative_indent = 1
 
 function! s:CheckPrecedes()
-  let w:relative_indent_precedes_shown =
+  let b:relative_indent_precedes_shown =
     \ &l:list &&
     \ !empty(matchstr(&l:listchars, 'precedes:\S'))
 endfunction
@@ -91,7 +91,7 @@ function! s:RelativeIndent()
 
   let l:precedes_shown =
     \ l:minindent > 0 &&
-    \ w:relative_indent_precedes_shown
+    \ b:relative_indent_precedes_shown
 
   " Export a variable that can be used in statusline
   let w:relative_indent_level = !l:precedes_shown || l:minindent > 1 ? l:minindent / shiftwidth() : 0
@@ -132,8 +132,8 @@ endfunction
 function! s:RelativeIndentEnable()
   augroup relative_indent_enabling_group
     autocmd!
-    autocmd WinEnter,WinLeave,CursorMoved,VimResized,TextChanged * :call <SID>RelativeIndent()
-    autocmd OptionSet list,listchars :call <SID>CheckPrecedes() | :call <SID>RelativeIndent()
+    autocmd BufRead,WinLeave,CursorMoved,VimResized,TextChanged <buffer> :call <SID>RelativeIndent()
+    autocmd OptionSet list,listchars <buffer> :call <SID>CheckPrecedes() | :call <SID>RelativeIndent()
   augroup END
   nnoremap <buffer><silent> <c-e> <c-e>:call <SID>RelativeIndent()<cr>
   nnoremap <buffer><silent> <c-y> <c-y>:call <SID>RelativeIndent()<cr>
@@ -159,7 +159,7 @@ function! s:RelativeIndentDisable()
   endif
   unlet! w:relative_indent_last_cursor
   unlet! w:relative_indent_level
-  unlet! w:relative_indent_precedes_shown
+  unlet! b:relative_indent_precedes_shown
   execute 'normal 999zh'
 endfunction
 
