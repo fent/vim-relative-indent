@@ -125,7 +125,8 @@ endfunction
 function! s:RelativeIndentEnable()
   augroup relative_indent_enabling_group
     autocmd!
-    autocmd WinEnter,WinLeave,CursorMoved,VimResized,TextChanged * :RelativeIndent
+    autocmd WinEnter,WinLeave,CursorMoved,VimResized,TextChanged * :call <SID>RelativeIndent()
+    autocmd OptionSet list,listchars :call <SID>RelativeIndent()
   augroup END
   nnoremap <buffer><silent> <c-e> <c-e>:call <SID>RelativeIndent()<cr>
   nnoremap <buffer><silent> <c-y> <c-y>:call <SID>RelativeIndent()<cr>
