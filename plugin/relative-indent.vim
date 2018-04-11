@@ -142,6 +142,9 @@ function! s:RelativeIndentDisable()
   nunmap <buffer> <c-y>
   iunmap <buffer> <c-x><c-e>
   iunmap <buffer> <c-x><c-y>
+  unlet! w:relative_indent_last_virtualedit
+  unlet! w:relative_indent_last_cursor
+  unlet! w:relative_indent_level
   execute 'normal 999zh'
 endfunction
 
