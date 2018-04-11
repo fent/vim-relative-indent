@@ -100,11 +100,12 @@ function! s:RelativeIndent()
 
   if l:cursor_at_blank_line
     " Place cursor one unit to the right of the precedes column
-    let l:cursor[3] = l:precedes_shown ? 1 : 0
+    let l:cursor[3] = l:minindent > 0 ? 1 : 0
     " Emulate how vim would place the cursor at a blank line
     " by placing it at the left of the window
-    let l:cursor[2] = l:minindent + l:cursor[3]
-    let l:cursor[4] = l:cursor[2] + 1
+    let l:cursor[2] = l:minindent + (l:precedes_shown ? 1 : 0)
+    let l:cursor[4] = l:cursor[2] +
+      \ (l:precedes_shown || l:cursor[2] > 1 ? 1 : 0)
   elseif l:moved_from_blank_line
     " Vim won't set curswant with `setpos()`,
     " it only does so when moving the cursor vertically,
