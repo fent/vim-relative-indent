@@ -94,7 +94,7 @@ function! s:RelativeIndent()
     \ w:relative_indent_precedes_shown
 
   " Export a variable that can be used in statusline
-  let w:relative_indent_level = !l:precedes_shown || l:minindent > 1 ? l:minindent : 0
+  let w:relative_indent_level = !l:precedes_shown || l:minindent > 1 ? l:minindent / shiftwidth() : 0
 
   if l:precedes_shown
     " Move the window one unit left if precedes is shown
