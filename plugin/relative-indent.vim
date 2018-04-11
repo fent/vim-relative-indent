@@ -132,6 +132,9 @@ function! s:RelativeIndentEnable()
   nnoremap <buffer><silent> <c-y> <c-y>:call <SID>RelativeIndent()<cr>
   inoremap <buffer><silent> <c-x><c-e> <c-x><c-e><esc>:call <SID>RelativeIndent()<cr>a
   inoremap <buffer><silent> <c-x><c-y> <c-x><c-y><esc>:call <SID>RelativeIndent()<cr>a
+  if empty(expand('<amatch>'))
+    call s:RelativeIndent()
+  endif
 endfunction
 
 function! s:RelativeIndentDisable()
