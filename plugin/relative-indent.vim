@@ -7,6 +7,12 @@ if exists('g:loaded_relative_indent')
 endif
 let g:loaded_relative_indent = 1
 
+function! s:CheckPrecedes()
+  let w:relative_indent_precedes_shown =
+    \ &l:list &&
+    \ !empty(matchstr(&l:listchars, 'precedes:\S'))
+endfunction
+
 function! s:RelativeIndent()
   let l:cursor = getcurpos()
   " Don't hide indent past the cursor
@@ -83,8 +89,7 @@ function! s:RelativeIndent()
 
   let l:precedes_shown =
     \ l:minindent > 0 &&
-    \ &l:list &&
-    \ !empty(matchstr(&l:listchars, 'precedes:\S'))
+    \ w:relative_indent_precedes_shown
 
   " Export a variable that can be used in statusline
   let w:relative_indent_level = !l:precedes_shown || l:minindent > 1 ? l:minindent : 0
@@ -126,12 +131,13 @@ function! s:RelativeIndentEnable()
   augroup relative_indent_enabling_group
     autocmd!
     autocmd WinEnter,WinLeave,CursorMoved,VimResized,TextChanged * :call <SID>RelativeIndent()
-    autocmd OptionSet list,listchars :call <SID>RelativeIndent()
+    autocmd OptionSet list,listchars :call <SID>CheckPrecedes() | :call <SID>RelativeIndent()
   augroup END
   nnoremap <buffer><silent> <c-e> <c-e>:call <SID>RelativeIndent()<cr>
   nnoremap <buffer><silent> <c-y> <c-y>:call <SID>RelativeIndent()<cr>
   inoremap <buffer><silent> <c-x><c-e> <c-x><c-e><esc>:call <SID>RelativeIndent()<cr>a
   inoremap <buffer><silent> <c-x><c-y> <c-x><c-y><esc>:call <SID>RelativeIndent()<cr>a
+  call s:CheckPrecedes()
   if empty(expand('<amatch>'))
     call s:RelativeIndent()
   endif
@@ -151,6 +157,7 @@ function! s:RelativeIndentDisable()
   endif
   unlet! w:relative_indent_last_cursor
   unlet! w:relative_indent_level
+  unlet! w:relative_indent_precedes_shown
   execute 'normal 999zh'
 endfunction
 
