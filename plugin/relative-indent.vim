@@ -85,6 +85,10 @@ function! s:RelativeIndent()
     \ l:minindent > 0 &&
     \ &l:list &&
     \ !empty(matchstr(&l:listchars, 'precedes:\S'))
+
+  " Export a variable that can be used in statusline
+  let w:relative_indent_level = !l:precedes_shown || l:minindent > 1 ? l:minindent : 0
+
   if l:precedes_shown
     " Move the window one unit left if precedes is shown
     " so that the precedes char doesn't block text
