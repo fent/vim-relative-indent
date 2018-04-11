@@ -79,8 +79,10 @@ function! s:RelativeIndent()
     unlet w:relative_indent_last_virtualedit
     if exists('w:relative_indent_last_cursor')
       let w:relative_indent_last_cursor[1] = l:cursor[1]
-      let w:relative_indent_last_cursor[2] = max([w:relative_indent_last_cursor[2], l:cursor[2]])
-      let w:relative_indent_last_cursor[4] = max([w:relative_indent_last_cursor[4], l:cursor[4]])
+      if l:cursor[2] > l:minindent + 1
+        let w:relative_indent_last_cursor[2] = l:cursor[2]
+        let w:relative_indent_last_cursor[4] = l:cursor[4]
+      endif
       let l:cursor = w:relative_indent_last_cursor
     endif
   elseif !l:cursor_at_blank_line || !exists('w:relative_indent_last_cursor')
