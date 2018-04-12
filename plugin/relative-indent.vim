@@ -18,9 +18,7 @@ function! s:RelativeIndent()
   " Don't hide indent past the cursor
   if &l:virtualedit !=# 'all' || exists('w:relative_indent_last_virtualedit')
     let l:curr_line_contents = getline(l:cursor[1])
-    let l:cursor_at_blank_line =
-      \ strlen(l:curr_line_contents) == 0 ||
-      \ empty(matchstr(l:curr_line_contents, '[^\s]'))
+    let l:cursor_at_blank_line = strlen(l:curr_line_contents) == 0
     let l:moved_from_blank_line =
       \ !l:cursor_at_blank_line &&
       \ exists('w:relative_indent_last_virtualedit')
@@ -54,7 +52,7 @@ function! s:RelativeIndent()
 
       " Ignore blank lines of whitespace
       let l:line_contents = getline(l:i)
-      if empty(matchstr(l:line_contents, '[^\s]'))
+      if empty(matchstr(l:line_contents, '\S'))
         continue
       endif
 
