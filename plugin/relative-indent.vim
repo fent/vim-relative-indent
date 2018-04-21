@@ -36,6 +36,7 @@ function! s:RelativeIndent()
 
   " Find the line with the least indent
   if l:minindent > 0
+    let l:minindent_set = 0
     for l:line_num in range(l:topline, l:botline)
       " An indent of 0 is already the minimum
       let l:line_indent = indent(l:line_num)
@@ -58,8 +59,14 @@ function! s:RelativeIndent()
 
       if l:minindent > l:line_indent
         let l:minindent = l:line_indent
+        let l:minindent_set = 1
       endif
     endfor
+
+    " In case the window only shows blank lines, or no lines
+    if l:minindent > 0 && !l:minindent_set
+      let l:minindent = 0
+    endif
   endif
 
   " If this line is where the cursor is, enable virtualedit mode
