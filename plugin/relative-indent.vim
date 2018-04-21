@@ -101,10 +101,10 @@ function! s:RelativeIndent()
   endif
 
   " Reset horizontal scroll
-  execute 'normal 999zh'
+  execute 'normal! 999zh'
   if l:minindent > 0
     " Hide indent by scrolling the window to the right
-    execute 'normal '.l:minindent.'zl'
+    execute 'normal! '.l:minindent.'zl'
   endif
 
   if l:cursor_at_blank_line
@@ -158,7 +158,7 @@ function! s:RelativeIndentDisable()
   unlet! w:relative_indent_last_cursor
   unlet! w:relative_indent_level
   unlet! b:relative_indent_precedes_shown
-  execute 'normal 999zh'
+  execute 'normal! 999zh'
 endfunction
 
 command! RelativeIndent call <SID>RelativeIndent()
