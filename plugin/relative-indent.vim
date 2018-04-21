@@ -36,11 +36,11 @@ function! s:RelativeIndent()
 
   " Find the line with the least indent
   if l:minindent > 0
-    for l:i in range(l:topline, l:botline)
+    for l:line_num in range(l:topline, l:botline)
       " An indent of 0 is already the minimum
-      let l:line_indent = indent(l:i)
+      let l:line_indent = indent(l:line_num)
       if l:line_indent == 0
-        let l:line_contents = getline(l:i)
+        let l:line_contents = getline(l:line_num)
         " Ignore blank lines with zero length
         if strlen(l:line_contents) == 0
           continue
@@ -51,7 +51,7 @@ function! s:RelativeIndent()
       endif
 
       " Ignore blank lines of whitespace
-      let l:line_contents = getline(l:i)
+      let l:line_contents = getline(l:line_num)
       if empty(matchstr(l:line_contents, '\S'))
         continue
       endif
