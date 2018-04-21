@@ -138,7 +138,7 @@ function! s:RelativeIndentEnable()
   augroup relative_indent_enabling_group
     autocmd!
     autocmd BufRead,WinLeave,CursorMoved,VimResized,TextChanged <buffer> :call <SID>RelativeIndent()
-    autocmd OptionSet list,listchars <buffer> :call <SID>CheckPrecedes() | :call <SID>RelativeIndent()
+    autocmd OptionSet <buffer> list,listchars :call <SID>CheckPrecedes() | :call <SID>RelativeIndent()
   augroup END
   nnoremap <buffer><silent> <c-e> <c-e>:call <SID>RelativeIndent()<cr>
   nnoremap <buffer><silent> <c-y> <c-y>:call <SID>RelativeIndent()<cr>
