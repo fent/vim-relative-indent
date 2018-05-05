@@ -76,7 +76,8 @@ function! s:RelativeIndent()
   " If this line is where the cursor is, enable virtualedit mode
   " so that the cursor doesn't jump to column 0
   if l:cursor_at_blank_line && &l:virtualedit !=# 'all'
-    let w:relative_indent_last_virtualedit = &l:virtualedit
+    let w:relative_indent_last_virtualedit =
+      \ get(w:, 'relative_indent_last_virtualedit', &l:virtualedit)
     let &l:virtualedit = 'all'
   endif
 
