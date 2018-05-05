@@ -14,6 +14,10 @@ function! s:CheckPrecedes()
 endfunction
 
 function! s:RelativeIndent()
+  if &l:wrap
+    return
+  endif
+
   let l:cursor = getcurpos()
   " Don't hide indent past the cursor
   if &l:virtualedit !=# 'all' || exists('w:relative_indent_last_virtualedit')
@@ -134,11 +138,23 @@ function! s:RelativeIndent()
   call setpos('.', l:cursor)
 endfunction
 
+function! s:CheckWrap()
+  if &l:wrap
+    if exists('w:relative_indent_last_virtualedit')
+      let &l:virtualedit = w:relative_indent_last_virtualedit
+      unlet w:relative_indent_last_virtualedit
+    endif
+  else
+    call s:RelativeIndent()
+  endif
+endfunction
+
 function! s:RelativeIndentEnable()
   augroup relative_indent_enabling_group
     autocmd! * <buffer>
     autocmd BufEnter,WinLeave,CursorMoved,VimResized,TextChanged <buffer> :call <SID>RelativeIndent()
-    autocmd OptionSet <buffer> list,listchars :call <SID>CheckPrecedes() | :call <SID>RelativeIndent()
+    autocmd OptionSet list,listchars :call <SID>CheckPrecedes() | :call <SID>RelativeIndent()
+    autocmd OptionSet wrap :call <SID>CheckWrap()
   augroup END
   nnoremap <buffer><silent> <c-e> <c-e>:call <SID>RelativeIndent()<cr>
   nnoremap <buffer><silent> <c-y> <c-y>:call <SID>RelativeIndent()<cr>
