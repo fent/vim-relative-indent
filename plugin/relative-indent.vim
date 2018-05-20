@@ -73,7 +73,7 @@ function! s:RelativeIndent()
     endif
   endif
 
-  " If this line is where the cursor is, enable virtualedit mode
+  " If the cursor is at a blank line, enable virtualedit mode
   " so that the cursor doesn't jump to column 0
   if l:cursor_at_blank_line && &l:virtualedit !=# 'all'
     let w:relative_indent_last_virtualedit =
@@ -120,13 +120,12 @@ function! s:RelativeIndent()
   endif
 
   if l:cursor_at_blank_line
-    " Place cursor one unit to the right of the precedes column
     let l:cursor[3] = l:minindent > 0 ? 1 : 0
-    " Emulate how vim would place the cursor at a blank line
-    " by placing it at the left of the window
+    " Place cursor one unit to the right of the precedes column
     let l:cursor[2] = l:minindent + (l:precedes_shown ? 1 : 0)
-    let l:cursor[4] = l:cursor[2] +
-      \ (l:precedes_shown || l:cursor[2] > 1 ? 1 : 0)
+    if exists('w:relative_indent_last_cursor')
+      let l:cursor[4] = w:relative_indent_last_cursor[4]
+    endif
   elseif l:moved_from_blank_line
     " Vim won't set curswant with `setpos()`,
     " it only does so when moving the cursor vertically,
