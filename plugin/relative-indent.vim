@@ -20,12 +20,12 @@ function! s:RelativeIndent()
 
   let l:cursor = getcurpos()
   " Don't hide indent past the cursor
-  if &l:virtualedit !=# 'all' || exists('w:relative_indent_last_virtualedit')
+  if &l:virtualedit !=# 'all' || exists('b:relative_indent_last_virtualedit')
     let l:curr_line_contents = getline(l:cursor[1])
     let l:cursor_at_blank_line = strlen(l:curr_line_contents) == 0
     let l:moved_from_blank_line =
       \ !l:cursor_at_blank_line &&
-      \ exists('w:relative_indent_last_virtualedit')
+      \ exists('b:relative_indent_last_virtualedit')
     if l:cursor_at_blank_line
       let l:minindent = exists('w:relative_indent_last_cursor') ?
         \  w:relative_indent_last_cursor[2] - 1 : 2147483647
@@ -76,7 +76,7 @@ function! s:RelativeIndent()
   " If the cursor is at a blank line, enable virtualedit mode
   " so that the cursor doesn't jump to column 0
   if l:cursor_at_blank_line && &l:virtualedit !=# 'all'
-    let w:relative_indent_last_virtualedit =
+    let b:relative_indent_last_virtualedit =
       \ get(w:, 'relative_indent_last_virtualedit', &l:virtualedit)
     let &l:virtualedit = 'all'
   endif
@@ -85,8 +85,8 @@ function! s:RelativeIndent()
   " restore the cursor column to the last column it was at
   " on a non blank line
   if l:moved_from_blank_line
-    let &l:virtualedit = w:relative_indent_last_virtualedit
-    unlet w:relative_indent_last_virtualedit
+    let &l:virtualedit = b:relative_indent_last_virtualedit
+    unlet b:relative_indent_last_virtualedit
     if exists('w:relative_indent_last_cursor')
       let w:relative_indent_last_cursor[1] = l:cursor[1]
       if l:cursor[2] > l:minindent + 1
@@ -140,9 +140,9 @@ endfunction
 
 function! s:CheckWrap()
   if &l:wrap
-    if exists('w:relative_indent_last_virtualedit')
-      let &l:virtualedit = w:relative_indent_last_virtualedit
-      unlet w:relative_indent_last_virtualedit
+    if exists('b:relative_indent_last_virtualedit')
+      let &l:virtualedit = b:relative_indent_last_virtualedit
+      unlet b:relative_indent_last_virtualedit
     endif
   else
     call s:RelativeIndent()
@@ -152,7 +152,7 @@ endfunction
 function! s:RelativeIndentEnable()
   augroup relative_indent_enabling_group
     autocmd! * <buffer>
-    autocmd BufEnter,WinLeave,CursorMoved,VimResized,TextChanged <buffer> :call <SID>RelativeIndent()
+    autocmd WinEnter,WinLeave,CursorMoved,VimResized,TextChanged <buffer> :call <SID>RelativeIndent()
     autocmd OptionSet list,listchars :call <SID>CheckPrecedes() | :call <SID>RelativeIndent()
     autocmd OptionSet wrap :call <SID>CheckWrap()
   augroup END
@@ -174,9 +174,9 @@ function! s:RelativeIndentDisable()
   nunmap <buffer> <c-y>
   iunmap <buffer> <c-x><c-e>
   iunmap <buffer> <c-x><c-y>
-  if exists('w:relative_indent_last_virtualedit')
-    let &l:virtualedit = w:relative_indent_last_virtualedit
-    unlet w:relative_indent_last_virtualedit
+  if exists('b:relative_indent_last_virtualedit')
+    let &l:virtualedit = b:relative_indent_last_virtualedit
+    unlet b:relative_indent_last_virtualedit
   endif
   unlet! w:relative_indent_last_cursor
   unlet! w:relative_indent_level
