@@ -18,7 +18,9 @@ In order to provide for flexibility, relative-indent is not enabled by default. 
 ```vim
 augroup relative_indent
   autocmd!
+  " Apply to all filetypes except markdown and quickfix
   autocmd FileType * :RelativeIndentEnable
+  autocmd FileType markdown :setlocal wrap
 augroup END
 ```
 
