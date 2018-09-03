@@ -41,7 +41,7 @@ function! s:RelativeIndent()
     let l:cursor_at_blank_line = 0
     let l:moved_from_blank_line = 0
   endif
-  let l:minindent = get(l:, 'minindent', l:cursor[2] - 1)
+  let l:minindent = get(l:, 'minindent', l:cursor[4] - 1)
   let l:topline = line('w0')
   let l:botline = line('w$')
 
