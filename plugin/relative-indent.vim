@@ -13,6 +13,13 @@ function! s:CheckPrecedes()
     \ !empty(matchstr(&l:listchars, 'precedes:\S'))
 endfunction
 
+function! s:CheckVirtualEdit()
+  let s:real_virtualedit = &virtualedit
+endfunction
+
+autocmd OptionSet virtualedit :call <SID>CheckVirtualEdit()
+call s:CheckVirtualEdit()
+
 function! s:RelativeIndent()
   if &l:wrap
     return
@@ -20,12 +27,12 @@ function! s:RelativeIndent()
 
   let l:cursor = getcurpos()
   " Don't hide indent past the cursor
-  if &l:virtualedit !=# 'all' || exists('b:relative_indent_last_virtualedit')
+  if &virtualedit !=# 'all' || s:real_virtualedit !=# &virtualedit
     let l:curr_line_contents = getline(l:cursor[1])
     let l:cursor_at_blank_line = strlen(l:curr_line_contents) == 0
     let l:moved_from_blank_line =
       \ !l:cursor_at_blank_line &&
-      \ exists('b:relative_indent_last_virtualedit')
+      \ s:real_virtualedit !=# &virtualedit
     if l:cursor_at_blank_line
       let l:minindent = exists('w:relative_indent_last_cursor') ?
         \  w:relative_indent_last_cursor[2] - 1 : 2147483647
@@ -75,18 +82,15 @@ function! s:RelativeIndent()
 
   " If the cursor is at a blank line, enable virtualedit mode
   " so that the cursor doesn't jump to column 0
-  if l:cursor_at_blank_line && &l:virtualedit !=# 'all'
-    let b:relative_indent_last_virtualedit =
-      \ get(w:, 'relative_indent_last_virtualedit', &l:virtualedit)
-    let &l:virtualedit = 'all'
+  if l:cursor_at_blank_line && &virtualedit !=# 'all'
+    :noautocmd let &virtualedit = 'all'
   endif
 
   " When moving from a blank line to a non blank line,
   " restore the cursor column to the last column it was at
   " on a non blank line
   if l:moved_from_blank_line
-    let &l:virtualedit = b:relative_indent_last_virtualedit
-    unlet b:relative_indent_last_virtualedit
+    :noautocmd let &virtualedit = s:real_virtualedit
     if exists('w:relative_indent_last_cursor')
       let w:relative_indent_last_cursor[1] = l:cursor[1]
       if l:cursor[2] > l:minindent + 1
@@ -106,7 +110,7 @@ function! s:RelativeIndent()
   " Export a variable that can be used in statusline
   let w:relative_indent_level = !l:precedes_shown || l:minindent > 1 ? l:minindent / shiftwidth() : 0
 
-  if l:precedes_shown
+  if l:precedes_shown && l:minindent > 0
     " Move the window one unit left if precedes is shown
     " so that the precedes char doesn't block text
     let l:minindent -= 1
@@ -140,9 +144,8 @@ endfunction
 
 function! s:CheckWrap()
   if &l:wrap
-    if exists('b:relative_indent_last_virtualedit')
-      let &l:virtualedit = b:relative_indent_last_virtualedit
-      unlet b:relative_indent_last_virtualedit
+    if s:real_virtualedit !=# &virtualedit
+      :noautocmd let &virtualedit = s:real_virtualedit
     endif
   else
     call s:RelativeIndent()
@@ -174,9 +177,8 @@ function! s:RelativeIndentDisable()
   nunmap <buffer> <c-y>
   iunmap <buffer> <c-x><c-e>
   iunmap <buffer> <c-x><c-y>
-  if exists('b:relative_indent_last_virtualedit')
-    let &l:virtualedit = b:relative_indent_last_virtualedit
-    unlet b:relative_indent_last_virtualedit
+  if s:real_virtualedit !=# &virtualedit
+    :noautocmd let &virtualedit = s:real_virtualedit
   endif
   unlet! w:relative_indent_last_cursor
   unlet! w:relative_indent_level
