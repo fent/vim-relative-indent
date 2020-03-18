@@ -155,7 +155,8 @@ endfunction
 function! s:RelativeIndentEnable()
   augroup relative_indent_enabling_group
     autocmd! * <buffer>
-    autocmd WinEnter,WinLeave,CursorMoved,VimResized,TextChanged <buffer> :call <SID>RelativeIndent()
+    autocmd CursorMoved,VimResized,TextChanged <buffer> :call <SID>RelativeIndent()
+    autocmd WinEnter,WinLeave <buffer> :call <SID>CheckPrecedes() | :call <SID>RelativeIndent()
     autocmd OptionSet list,listchars :call <SID>CheckPrecedes() | :call <SID>RelativeIndent()
     autocmd OptionSet wrap :call <SID>CheckWrap()
   augroup END
