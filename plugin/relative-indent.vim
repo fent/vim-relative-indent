@@ -82,14 +82,14 @@ function! s:RelativeIndent()
   " If the cursor is at a blank line, enable virtualedit mode
   " so that the cursor doesn't jump to column 0
   if l:cursor_at_blank_line && &virtualedit !=# 'all'
-    :noautocmd let &virtualedit = 'all'
+    noautocmd let &virtualedit = 'all'
   endif
 
   " When moving from a blank line to a non blank line,
   " restore the cursor column to the last column it was at
   " on a non blank line
   if l:moved_from_blank_line
-    :noautocmd let &virtualedit = s:real_virtualedit
+    noautocmd let &virtualedit = s:real_virtualedit
     if exists('w:relative_indent_last_cursor')
       let w:relative_indent_last_cursor[1] = l:cursor[1]
       if l:cursor[2] > l:minindent + 1
@@ -140,7 +140,7 @@ endfunction
 function! s:CheckWrap()
   if &l:wrap
     if s:real_virtualedit !=# &virtualedit
-      :noautocmd let &virtualedit = s:real_virtualedit
+      noautocmd let &virtualedit = s:real_virtualedit
     endif
   else
     call s:RelativeIndent()
@@ -174,7 +174,7 @@ function! s:RelativeIndentDisable()
   iunmap <buffer> <c-x><c-e>
   iunmap <buffer> <c-x><c-y>
   if s:real_virtualedit !=# &virtualedit
-    :noautocmd let &virtualedit = s:real_virtualedit
+    noautocmd let &virtualedit = s:real_virtualedit
   endif
   unlet! w:relative_indent_last_cursor
   unlet! w:relative_indent_level
