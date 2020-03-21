@@ -28,8 +28,7 @@ function! s:RelativeIndent()
   let l:cursor = getcurpos()
   " Don't hide indent past the cursor
   if &virtualedit !=# 'all' || s:real_virtualedit !=# &virtualedit
-    let l:curr_line_contents = getline(l:cursor[1])
-    let l:cursor_at_blank_line = strlen(l:curr_line_contents) == 0
+    let l:cursor_at_blank_line = strlen(getline(l:cursor[1])) == 0
     let l:moved_from_blank_line =
       \ !l:cursor_at_blank_line &&
       \ s:real_virtualedit !=# &virtualedit
@@ -132,12 +131,8 @@ function! s:RelativeIndent()
     endif
   elseif l:moved_from_blank_line
     " Vim won't set curswant with `setpos()`,
-    " it only does so when moving the cursor vertically,
-    " so set it manually
-    if l:cursor[4] > l:cursor[2]
-      let l:curr_line_contents = get(l:, 'curr_line_contents', getline(l:cursor[1]))
-      let l:cursor[2] = min([strlen(l:curr_line_contents), l:cursor[4]])
-    endif
+    " so we have to set the column to curswant and see if we can move there.
+    let l:cursor[2] = l:cursor[4]
   endif
   call setpos('.', l:cursor)
 endfunction
