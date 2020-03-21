@@ -21,7 +21,7 @@ autocmd OptionSet virtualedit :call <SID>CheckVirtualEdit()
 call s:CheckVirtualEdit()
 
 function! s:RelativeIndent()
-  if &l:wrap || mode() !~ "^[nv]"
+  if &l:wrap || mode() !~? '^[nv]'
     return
   endif
 
