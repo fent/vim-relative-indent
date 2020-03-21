@@ -154,6 +154,7 @@ function! s:RelativeIndentEnable()
     autocmd WinEnter,WinLeave <buffer> :call <SID>CheckPrecedes() | :call <SID>RelativeIndent()
     autocmd OptionSet list,listchars :call <SID>CheckPrecedes() | :call <SID>RelativeIndent()
     autocmd OptionSet wrap :call <SID>CheckWrap()
+    autocmd OptionSet sidescrolloff :call <SID>RelativeIndent()
   augroup END
   nnoremap <buffer><silent> <c-e> <c-e>:call <SID>RelativeIndent()<cr>
   nnoremap <buffer><silent> <c-y> <c-y>:call <SID>RelativeIndent()<cr>
