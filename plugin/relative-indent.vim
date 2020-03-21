@@ -34,7 +34,7 @@ function! s:RelativeIndent()
       \ s:real_virtualedit !=# &virtualedit
     if l:cursor_at_blank_line
       let l:minindent = exists('w:relative_indent_last_cursor') ?
-        \  w:relative_indent_last_cursor[2] - 1 : 2147483647
+        \  w:relative_indent_last_cursor[4] - 1 : 2147483647
     endif
   else
     let l:cursor_at_blank_line = 0
@@ -123,9 +123,9 @@ function! s:RelativeIndent()
   endif
 
   if l:cursor_at_blank_line
-    let l:cursor[3] = l:minindent > 0 ? 1 : 0
+    let l:cursor[3] = l:minindent + (l:precedes_shown ? 1 : 0)
     " Place cursor one unit to the right of the precedes column
-    let l:cursor[2] = l:minindent + (l:precedes_shown ? 1 : 0)
+    let l:cursor[2] = 0
     if exists('w:relative_indent_last_cursor')
       let l:cursor[4] = w:relative_indent_last_cursor[4]
     endif
@@ -151,7 +151,7 @@ function! s:RelativeIndentEnable()
   augroup relative_indent_enabling_group
     autocmd! * <buffer>
     autocmd CursorMoved,VimResized,TextChanged <buffer> :call <SID>RelativeIndent()
-    autocmd WinEnter,WinLeave <buffer> :call <SID>CheckPrecedes() | :call <SID>RelativeIndent()
+    autocmd WinEnter <buffer> :call <SID>CheckPrecedes() | :call <SID>RelativeIndent()
     autocmd OptionSet list,listchars :call <SID>CheckPrecedes() | :call <SID>RelativeIndent()
     autocmd OptionSet wrap :call <SID>CheckWrap()
     autocmd OptionSet sidescrolloff :call <SID>RelativeIndent()
