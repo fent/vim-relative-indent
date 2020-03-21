@@ -187,6 +187,6 @@ function! s:RelativeIndentDisable()
   execute 'normal! 999zh'
 endfunction
 
-command! RelativeIndent call <SID>RelativeIndent()
+command! RelativeIndent call <SID>CheckPrecedes()<Bar>call <SID>RelativeIndent()
 command! RelativeIndentEnable call <SID>RelativeIndentEnable()
 command! RelativeIndentDisable call <SID>RelativeIndentDisable()
