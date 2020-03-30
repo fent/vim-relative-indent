@@ -36,3 +36,21 @@ set list
 ![list_preview](https://i.imgur.com/EZXhsYF.gif)
 
 If you'd like to know how many levels of indent are hidden, use `w:relative_indent_level`. This can be used in your statusline for example.
+
+This is my configuration with lightline
+```vim
+let g:lightline = {
+  \ 'active': {
+  \   'left': [
+  \     ['relative_indent', 'mode', 'paste'],
+  \   ],
+  \   'right': [['lineinfo'], ['percent'], ['fileformat', 'filetype']],
+  \ 'component_function': {
+  \   'relative_indent': 'LightlineRelativeIndent',
+  \ },
+  \ }
+
+function! LightlineRelativeIndent()
+  return repeat('<', get(w:, 'relative_indent_level', 0))
+endfunction
+```
