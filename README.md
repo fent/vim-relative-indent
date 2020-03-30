@@ -54,3 +54,12 @@ function! LightlineRelativeIndent()
   return repeat('<', get(w:, 'relative_indent_level', 0))
 endfunction
 ```
+
+`sidescrolloff` can affect this plugin's ability to scroll the view. If you use vim-sensible, which does `set sidescrolloff=5`, but you want to set `sidescrolloff=0` you can do something like
+
+```vim
+augroup relative_indent
+  autocmd!
+  autocmd FileType * :setlocal sidescrolloff=0 | :RelativeIndentEnable
+augroup END
+```
