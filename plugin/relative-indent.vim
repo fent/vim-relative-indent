@@ -7,10 +7,12 @@ if exists('g:loaded_relative_indent')
 endif
 let g:loaded_relative_indent = 1
 
-function! s:CheckPrecedes()
+function! s:CheckListchars()
   let b:relative_indent_precedes_shown =
     \ &l:list &&
     \ !empty(matchstr(&l:listchars, 'precedes:\S'))
+  let b:relative_indent_default_tab =
+    \ &l:list && empty(matchstr(&l:listchars, 'tab:'))
 endfunction
 
 function! s:CheckVirtualEdit()
@@ -67,10 +69,17 @@ function! s:RelativeIndent()
         continue
       endif
 
+      " Default tab is printed at 2 characters no matter the `tabstop`
+      " but `indent()` will still return the total indent in spaces
+      if b:relative_indent_default_tab && !empty(matchstr(l:line_contents, '^\t\+'))
+        let l:line_indent = l:line_indent / &l:tabstop * 2
+      endif
+
       let l:nonblank_found = 1
       if l:minindent > l:line_indent
         let l:minindent = l:line_indent
       endif
+
     endfor
 
     " In case the window only shows blank lines, or no lines
@@ -151,8 +160,8 @@ function! s:RelativeIndentEnable()
   augroup relative_indent_enabling_group
     autocmd! * <buffer>
     autocmd CursorMoved,VimResized,TextChanged <buffer> :call <SID>RelativeIndent()
-    autocmd WinEnter <buffer> :call <SID>CheckPrecedes() | :call <SID>RelativeIndent()
-    autocmd OptionSet list,listchars :call <SID>CheckPrecedes() | :call <SID>RelativeIndent()
+    autocmd WinEnter <buffer> :call <SID>CheckListchars() | :call <SID>RelativeIndent()
+    autocmd OptionSet list,listchars :call <SID>CheckListchars() | :call <SID>RelativeIndent()
     autocmd OptionSet wrap :call <SID>CheckWrap()
     autocmd OptionSet sidescrolloff :call <SID>RelativeIndent()
   augroup END
@@ -160,7 +169,7 @@ function! s:RelativeIndentEnable()
   nnoremap <buffer><silent> <c-y> <c-y>:call <SID>RelativeIndent()<cr>
   inoremap <buffer><silent> <c-x><c-e> <c-x><c-e><esc>:call <SID>RelativeIndent()<cr>a
   inoremap <buffer><silent> <c-x><c-y> <c-x><c-y><esc>:call <SID>RelativeIndent()<cr>a
-  call s:CheckPrecedes()
+  call s:CheckListchars()
   if empty(expand('<amatch>'))
     call s:RelativeIndent()
   endif
@@ -183,6 +192,6 @@ function! s:RelativeIndentDisable()
   execute 'normal! 999zh'
 endfunction
 
-command! RelativeIndent call <SID>CheckPrecedes()<Bar>call <SID>RelativeIndent()
+command! RelativeIndent call <SID>CheckListchars()<Bar>call <SID>RelativeIndent()
 command! RelativeIndentEnable call <SID>RelativeIndentEnable()
 command! RelativeIndentDisable call <SID>RelativeIndentDisable()
