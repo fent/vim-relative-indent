@@ -35,6 +35,8 @@ set list
 
 ![list_preview](https://i.imgur.com/EZXhsYF.gif)
 
+Note that using `precedes` with tabbed files don't show correctly, see https://github.com/vim/vim/issues/5927
+
 If you'd like to know how many levels of indent are hidden, use `w:relative_indent_level`. This can be used in your statusline for example.
 
 This is my configuration with lightline
