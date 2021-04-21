@@ -9,10 +9,10 @@ let g:loaded_relative_indent = 1
 
 function! s:CheckListchars()
   let b:relative_indent_precedes_shown =
-    \ &l:list &&
-    \ !empty(matchstr(&l:listchars, 'precedes:\S'))
+    \ &list &&
+    \ !empty(matchstr(&listchars, 'precedes:\S'))
   let b:relative_indent_default_tab =
-    \ &l:list && empty(matchstr(&l:listchars, 'tab:'))
+    \ &list && empty(matchstr(&listchars, 'tab:'))
 endfunction
 
 function! s:CheckVirtualEdit()
@@ -23,7 +23,7 @@ autocmd OptionSet virtualedit :call <SID>CheckVirtualEdit()
 call s:CheckVirtualEdit()
 
 function! s:RelativeIndent()
-  if &l:wrap || mode() !~? '^[nv]'
+  if &wrap || mode() !~? '^[nv]'
     return
   endif
 
@@ -72,7 +72,7 @@ function! s:RelativeIndent()
       " Default tab is printed at 2 characters no matter the `tabstop`
       " but `indent()` will still return the total indent in spaces
       if b:relative_indent_default_tab && !empty(matchstr(l:line_contents, '^\t\+'))
-        let l:line_indent = l:line_indent / &l:tabstop * 2
+        let l:line_indent = l:line_indent / &tabstop * 2
       endif
 
       let l:nonblank_found = 1
